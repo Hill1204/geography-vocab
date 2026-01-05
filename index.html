@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>地理专业词汇记忆</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial;
+  background:#f3f4f6;
+  padding:15px;
+}
+.card {
+  background:#fff;
+  max-width:800px;
+  margin:auto;
+  padding:20px;
+  border-radius:14px;
+  box-shadow:0 8px 20px rgba(0,0,0,.08);
+}
+h1 { text-align:center; }
+select,input {
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  font-size:16px;
+}
+button {
+  padding:10px 14px;
+  margin-top:8px;
+  border:none;
+  border-radius:8px;
+  font-size:16px;
+}
+.primary { background:#4f46e5; color:#fff; }
+.secondary { background:#64748b; color:#fff; }
+.exam { background:#16a34a; color:#fff; }
+#question {
+  font-size:22px;
+  margin:15px 0;
+  text-align:center;
+}
+.correct { color:#16a34a; }
+.wrong { color:#dc2626; }
+.tag {
+  font-size:14px;
+  color:#fff;
+  background:#ef4444;
+  padding:2px 6px;
+  border-radius:6px;
+  margin-left:6px;
+}
+small { color:#6b7280; }
+</style>
+</head>
+<body>
+
+<div class="card">
+<h1>📘 地理专业词汇记忆</h1>
+
+<label>选择单元</label>
+<select id="unit"></select>
+
+<label>模式</label>
+<select id="mode">
+  <option value="en-cn">English → 中文</option>
+  <option value="cn-en">中文 → English</option>
+</select>
+
+<div id="question"></div>
+<input id="answer" placeholder="请输入答案">
+
+<div id="feedback"></div>
+
+<button class="primary" onclick="check()">检查</button>
+<button class="secondary" onclick="nextWord()">下一个</button>
+<button class="exam" onclick="startExam()">📝 考试模式</button>
+
+<p><small>🔴 标红为重点词｜英文不区分大小写｜考试模式 10 题</small></p>
+</div>
+
+<script>
+const data = {
+"Unit 1 Earth & Universe":[
+{en:"solar system",cn:"太阳系",key:1},
+{en:"Milky Way",cn:"银河系"},
+{en:"planet",cn:"行星",key:1},
+{en:"star",cn:"恒星",key:1},
+{en:"satellite",cn:"卫星"},
+{en:"comet",cn:"彗星"},
+{en:"asteroid",cn:"小行星"},
+{en:"meteoroid",cn:"流星体"},
+{en:"light year",cn:"光年",key:1}
+],
+"Unit 2 Soils & Plants":[
+{en:"pedogenesis",cn:"成土作用",key:1},
+{en:"parent material",cn:"母质"},
+{en:"organic matter",cn:"有机物质",key:1},
+{en:"soil profile",cn:"土壤剖面",key:1},
+{en:"humus",cn:"腐殖质",key:1},
+{en:"soil erosion",cn:"土壤侵蚀",key:1}
+],
+"Unit 3 Weather & Climate":[
+{en:"solar insolation",cn:"太阳辐射",key:1},
+{en:"convection",cn:"对流",key:1},
+{en:"Hadley cell",cn:"哈德莱环流圈",key:1},
+{en:"Coriolis force",cn:"科里奥利力",key:1},
+{en:"greenhouse effect",cn:"温室效应",key:1}
+],
+"Unit 4 Water":[
+{en:"hydrologic cycle",cn:"水循环",key:1},
+{en:"evaporation",cn:"蒸发"},
+{en:"runoff",cn:"地表径流",key:1},
+{en:"groundwater flow",cn:"地下径流",key:1}
+],
+"Unit 5 Urban":[
+{en:"urban land use",cn:"城市土地利用",key:1},
+{en:"CBD",cn:"中心商业区",key:1},
+{en:"suburb",cn:"郊区"}
+],
+"Unit 6 Tourism":[
+{en:"tourism revenue",cn:"旅游收入",key:1},
+{en:"tourism leakage",cn:"旅游漏损",key:1},
+{en:"mass tourism",cn:"大众旅游",key:1}
+],
+"Unit 7 Resources":[
+{en:"water scarcity",cn:"水资源缺乏",key:1},
+{en:"eutrophication",cn:"富营养化",key:1},
+{en:"resource utilization",cn:"资源利用",key:1}
+]
+};
+
+let unitSel=document.getElementById("unit");
+for(let k in data){
+  let o=document.createElement("option");
+  o.value=k;o.text=k;
+  unitSel.appendChild(o);
+}
+
+let current;
+let exam=false, examList=[], examIndex=0, score=0;
+
+function pick(){
+ const arr=data[unitSel.value];
+ return arr[Math.floor(Math.random()*arr.length)];
+}
+
+function show(w){
+ const mode=document.getElementById("mode").value;
+ document.getElementById("question").innerHTML =
+ (mode==="en-cn"?w.en:w.cn)+(w.key?" <span class='tag'>重点</span>":"");
+}
+
+function nextWord(){
+ exam=false;
+ document.getElementById("feedback").innerHTML="";
+ document.getElementById("answer").value="";
+ current=pick();
+ show(current);
+}
+
+function check(){
+ const input=document.getElementById("answer").value.trim().toLowerCase();
+ const correct=(document.getElementById("mode").value==="en-cn"?current.cn:current.en).toLowerCase();
+ if(input===correct){
+   document.getElementById("feedback").innerHTML="<p class='correct'>✔ 正确</p>";
+   if(exam) score++;
+ }else{
+   document.getElementById("feedback").innerHTML="<p class='wrong'>✘ 正确答案："+correct+"</p>";
+ }
+ if(exam){
+   examIndex++;
+   if(examIndex<examList.length){
+     current=examList[examIndex];
+     setTimeout(()=>{document.getElementById("feedback").innerHTML="";document.getElementById("answer").value="";show(current);},700);
+   }else{
+     document.getElementById("feedback").innerHTML="<h3>考试结束："+score+"/10</h3>";
+   }
+ }
+}
+
+function startExam(){
+ exam=true; score=0; examIndex=0;
+ examList=[...data[unitSel.value]].sort(()=>0.5-Math.random()).slice(0,10);
+ current=examList[0];
+ document.getElementById("answer").value="";
+ document.getElementById("feedback").innerHTML="<p>考试开始</p>";
+ show(current);
+}
+
+nextWord();
+</script>
+</body>
+</html>
